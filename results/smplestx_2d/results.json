@@ -1,0 +1,52 @@
+{
+  "coords": "2d",
+  "label": "gloss",
+  "mirror": false,
+  "n_classes": 44,
+  "n_joints": 52,
+  "n_train": 646,
+  "n_val": 167,
+  "n_test": 535,
+  "runs": [
+    {
+      "seed": 0,
+      "val_top1": 0.8023952095808383,
+      "test_top1": 0.6186915887850467,
+      "test_top5": 0.8728971962616823
+    },
+    {
+      "seed": 1,
+      "val_top1": 0.8263473053892215,
+      "test_top1": 0.6149532710280374,
+      "test_top5": 0.8635514018691589
+    },
+    {
+      "seed": 2,
+      "val_top1": 0.8263473053892215,
+      "test_top1": 0.6523364485981309,
+      "test_top5": 0.8822429906542056
+    }
+  ],
+  "baseline_test_top1": 0.22990654205607478,
+  "baseline_test_top5": 0.5663551401869159,
+  "test_top1_mean": 0.6286604361370717,
+  "test_top1_std": 0.016810887929261126,
+  "test_top5_mean": 0.8728971962616822,
+  "test_top5_std": 0.0076308091675488425,
+  "val_top1_mean": 0.8183632734530938,
+  "val_top1_std": 0.011291126246491761,
+  "ensemble_test_top1": 0.6560747663551402,
+  "ensemble_test_top5": 0.8878504672897196,
+  "top_confusions_test": [
+    "FIREMAN2 -> FIREMAN1 (6)",
+    "AMAZING -> BED1 (5)",
+    "GROW -> MONEY1 (5)",
+    "THROW2 -> HELLO (5)",
+    "BED1 -> AMAZING (4)",
+    "ME -> COMPLAIN (4)",
+    "BED1 -> BED2 (3)",
+    "COMPLAIN -> LIKE (3)",
+    "HELLO -> FIREMAN1 (3)",
+    "HONEST -> LOCK1 (3)"
+  ]
+}
