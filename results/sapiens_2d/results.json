@@ -1,0 +1,52 @@
+{
+  "coords": "2d",
+  "label": "gloss",
+  "mirror": false,
+  "n_classes": 44,
+  "n_joints": 52,
+  "n_train": 646,
+  "n_val": 167,
+  "n_test": 535,
+  "runs": [
+    {
+      "seed": 0,
+      "val_top1": 0.7604790419161677,
+      "test_top1": 0.6336448598130842,
+      "test_top5": 0.8093457943925234
+    },
+    {
+      "seed": 1,
+      "val_top1": 0.7844311377245509,
+      "test_top1": 0.6392523364485981,
+      "test_top5": 0.811214953271028
+    },
+    {
+      "seed": 2,
+      "val_top1": 0.7784431137724551,
+      "test_top1": 0.6336448598130842,
+      "test_top5": 0.8242990654205608
+    }
+  ],
+  "baseline_test_top1": 0.3364485981308411,
+  "baseline_test_top5": 0.6429906542056075,
+  "test_top1_mean": 0.6355140186915889,
+  "test_top1_std": 0.0026433898362113717,
+  "test_top5_mean": 0.8149532710280374,
+  "test_top5_std": 0.0066523852037578225,
+  "val_top1_mean": 0.7744510978043913,
+  "val_top1_std": 0.01017768365986583,
+  "ensemble_test_top1": 0.6616822429906543,
+  "ensemble_test_top5": 0.8317757009345794,
+  "top_confusions_test": [
+    "SUSPECT -> THINK (6)",
+    "BED1 -> BED2 (5)",
+    "COMPLAIN -> ME (4)",
+    "LIKE -> COMPLAIN (4)",
+    "PRETTY -> SLEEP (4)",
+    "THROW2 -> HELLO (4)",
+    "FIREMAN1 -> HELLO (3)",
+    "FIREMAN2 -> FIREMAN1 (3)",
+    "FUNNY -> TONGUE (3)",
+    "GROW -> MONEY1 (3)"
+  ]
+}
