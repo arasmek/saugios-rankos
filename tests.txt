@@ -1,0 +1,14 @@
+{
+  "resolution":     {"filters": [{"type": "resolution", "height": "LEVEL"}], "levels": [540, 360, 240, 180, 144, 96]},
+  "fps":            {"filters": [{"type": "fps", "fps": "LEVEL"}], "levels": [25, 20, 15, 10, 5]},
+  "compression":    {"filters": [{"type": "codec", "codec": "libx264", "crf": "LEVEL"}], "levels": [23, 28, 33, 38, 43, 51]},
+  "codec":          {"filters": [{"type": "codec", "codec": "LEVEL", "bitrate": "300k"}],
+                     "levels": ["libx264", "libx265", "libvpx-vp9", "mpeg4", "mjpeg"]},
+  "blur":           {"filters": [{"type": "blur", "size": "LEVEL"}], "levels": [3, 7, 11, 15, 21]},
+  "noise":          {"filters": [{"type": "noise", "sigma": "LEVEL"}], "levels": [5, 10, 20, 30, 50]},
+  "blur_and_noise": {"filters": [{"type": "blur", "size": 7}, {"type": "noise", "sigma": "LEVEL"}],
+                     "levels": [10, 20, 30], "all_orders": true},
+  "frame_drop":     {"filters": [{"type": "frame_drop", "probability": "LEVEL"}], "levels": [0.05, 0.1, 0.2, 0.3]},
+  "darkness":       {"filters": [{"type": "brightness", "change": "LEVEL"}], "levels": [-20, -40, -60, -80]},
+  "occlusion":      {"filters": [{"type": "occlusion", "size": "LEVEL"}], "levels": [0.1, 0.2, 0.3]}
+}
