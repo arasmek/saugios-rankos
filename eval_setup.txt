@@ -1,0 +1,7 @@
+{
+  "videos": {"folder": "dataset/videos/needed", "signs": null, "max_signs": 10, "videos_per_sign": 5},
+  "preprocess": [{"type": "resolution", "height": 720}, {"type": "fps", "fps": 30}],
+  "run_tests": ["resolution", "fps", "compression", "codec"],
+  "random_seeds": [0, 1, 2],
+  "classifier": {"name": "random_forest", "frames": 16, "test_share": 0.2, "min_conf": 0.3, "hand_found_share": 0.5, "limit": 0.9}
+}

@@ -1,8 +1,9 @@
-"""Video degradations shared by the pose-estimator notebooks.
+"""Everything the pose-estimator notebooks share on the video side, so every model gets exactly the same videos.
 
-The test definitions live in `tests.txt` (JSON) and are read into a variable called TESTS. The filter functions below
-are the ones from `mediapipe_classifier.ipynb`, so a test name and level mean the same degradation for every model.
-Scenario names are built exactly like in the MediaPipe notebooks ("resolution_96", "noise_10_seed0", ...).
+* `eval_setup.txt` (JSON): which videos, the preprocessing every video gets first, the random seeds, the classifier.
+* `tests.txt` (JSON): the degradation tests, read into a variable called TESTS.
+* The filter functions are the ones the MediaPipe notebook used before, so a test name and level mean the same
+  degradation for every model. Scenario names are "original", "resolution_96", "noise_10_seed0", ...
 """
 import hashlib
 import itertools
@@ -15,6 +16,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+
+VIDEO_TYPES = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 
 def ffmpeg():
@@ -54,6 +57,13 @@ def encode(frames, fps, path, codec, options):
     cmd = [ffmpeg(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
            "-r", str(fps), "-i", "-", "-an", "-c:v", codec, *map(str, options), str(path)]
     subprocess.run(cmd, input=b"".join(f.tobytes() for f in frames), capture_output=True, check=True)
+
+
+def save_video(frames, fps, path, codec="ffv1", options=()):
+    """ffv1 is lossless, so saving adds no quality loss of its own."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    encode(even(frames), fps, path, codec, options)
+    Path(str(path) + ".json").write_text(json.dumps({"fps": fps}))
 
 
 def f_resolution(frames, fps, p, rng):
@@ -196,3 +206,61 @@ def scenario_folder(s):
 def scenario_rng(s, video_id):
     """Same random numbers per scenario and video as in the MediaPipe notebooks (video_id = "<sign>__<video>")."""
     return np.random.default_rng([s["seed"] or 0, zlib.crc32(video_id.encode())])
+
+
+def load_setup(path="eval_setup.txt"):
+    """Read the shared setup (JSON): videos, preprocess, run_tests, random_seeds, classifier. Checked here so a typo fails early."""
+    setup = json.loads(Path(path).read_text(encoding="utf-8"))
+    missing = [k for k in ("videos", "preprocess", "run_tests", "random_seeds", "classifier") if k not in setup]
+    if missing:
+        raise KeyError(f"{path}: missing {missing}")
+    if "folder" not in setup["videos"]:
+        raise KeyError(f'{path}: "videos" needs a "folder"')
+    for spec in setup["preprocess"]:
+        if spec.get("type") not in FILTERS:
+            raise ValueError(f"{path}: unknown preprocess filter {spec.get('type')!r}, available: {sorted(FILTERS)}")
+    return setup
+
+
+def select_videos(cfg):
+    """DATA_FOLDER/<sign>/<video>: the folder name is the sign. Same rule as the MediaPipe notebook used:
+    signs in alphabetical order, the first `videos_per_sign` videos of each, at most `max_signs` signs.
+    With a "signs" list exactly those signs are taken (and "max_signs" is ignored)."""
+    root = Path(cfg["folder"])
+    if not root.is_dir():
+        raise FileNotFoundError(f"Video folder not found: {root.resolve()}\nWorking directory is: {Path.cwd()}")
+    wanted = cfg.get("signs") or None
+    folders = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_")))
+    if wanted:
+        missing = [s for s in wanted if not (root / s).is_dir()]
+        if missing:
+            raise FileNotFoundError(f"Signs not found in {root}: {missing}")
+        folders = [root / s for s in sorted(wanted)]
+    videos, n_signs = [], 0
+    for sign in folders:
+        files = [f for f in sorted(sign.iterdir())
+                 if f.is_file() and f.suffix.lower() in VIDEO_TYPES and not f.name.startswith(".")]
+        if cfg.get("videos_per_sign"):
+            files = files[:cfg["videos_per_sign"]]
+        if not files:
+            continue                                    # skip folders with no videos
+        videos += [{"sign": sign.name, "video": f"{sign.name}__{f.stem}", "path": str(f)} for f in files]
+        n_signs += 1
+        if cfg.get("max_signs") and not wanted and n_signs == cfg["max_signs"]:
+            break
+    if not videos:
+        raise FileNotFoundError(f"No videos ({', '.join(sorted(VIDEO_TYPES))}) found in {root.resolve()}")
+    return videos
+
+
+def scenario_frames(path, video_id, preprocess, scenario):
+    """Frames and fps of one video in one scenario, exactly as the MediaPipe notebook makes them: the preprocessing
+    first (its "clean" video), then the scenario filters. Each stage ends with the even-size crop that its lossless
+    save applies, so no file has to be written. video_id = "<sign>__<video>" (it seeds the random filters)."""
+    frames, fps = read_video(path)
+    frames, fps = apply_filters(frames, fps, preprocess, np.random.default_rng(0))
+    frames = even(frames)
+    if scenario["filters"]:
+        frames, fps = apply_filters(frames, fps, scenario["filters"], scenario_rng(scenario, video_id))
+        frames = even(frames)
+    return frames, fps
